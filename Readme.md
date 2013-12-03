@@ -97,6 +97,12 @@ Renderer.prototype.tablecell = function(content, flags) {
 
 ### markit.Renderer()
 
+## Bonus
+
+You can create a standalone script with:
+
+    $ make standalone
+
 ## License
 
 MIT
