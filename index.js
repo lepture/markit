@@ -515,10 +515,14 @@ inline.breaks = merge({}, inline.gfm, {
  * Inline Lexer & Compiler
  */
 
-function InlineLexer(links, options) {
+function InlineLexer(links, options, renderer) {
   this.options = options || marked.defaults;
   this.links = links;
   this.rules = inline.normal;
+  if (!renderer) {
+    renderer = new Renderer();
+  }
+  this.renderer = renderer;
 
   if (!this.links) {
     throw new
@@ -582,11 +586,7 @@ InlineLexer.prototype.output = function(src) {
         text = escape(cap[1]);
         href = text;
       }
-      out += '<a href="'
-        + href
-        + '">'
-        + text
-        + '</a>';
+      out += this.renderer.link(href, null, text);
       continue;
     }
 
@@ -595,11 +595,7 @@ InlineLexer.prototype.output = function(src) {
       src = src.substring(cap[0].length);
       text = escape(cap[1]);
       href = text;
-      out += '<a href="'
-        + href
-        + '">'
-        + text
-        + '</a>';
+      out += this.renderer.link(href, null, text);
       continue;
     }
 
@@ -640,43 +636,35 @@ InlineLexer.prototype.output = function(src) {
     // strong
     if (cap = this.rules.strong.exec(src)) {
       src = src.substring(cap[0].length);
-      out += '<strong>'
-        + this.output(cap[2] || cap[1])
-        + '</strong>';
+      out += this.renderer.strong(this.output(cap[2] || cap[1]));
       continue;
     }
 
     // em
     if (cap = this.rules.em.exec(src)) {
       src = src.substring(cap[0].length);
-      out += '<em>'
-        + this.output(cap[2] || cap[1])
-        + '</em>';
+      out += this.renderer.emphasis(this.output(cap[2] || cap[1]));
       continue;
     }
 
     // code
     if (cap = this.rules.code.exec(src)) {
       src = src.substring(cap[0].length);
-      out += '<code>'
-        + escape(cap[2], true)
-        + '</code>';
+      out += this.renderer.codespan(escape(cap[2], true));
       continue;
     }
 
     // br
     if (cap = this.rules.br.exec(src)) {
       src = src.substring(cap[0].length);
-      out += '<br>';
+      out += this.renderer.linebreak();
       continue;
     }
 
     // del (gfm)
     if (cap = this.rules.del.exec(src)) {
       src = src.substring(cap[0].length);
-      out += '<del>'
-        + this.output(cap[1])
-        + '</del>';
+      out += this.renderer.strikethrough(this.output(cap[1]));
       continue;
     }
 
@@ -701,30 +689,13 @@ InlineLexer.prototype.output = function(src) {
  */
 
 InlineLexer.prototype.outputLink = function(cap, link) {
+  var href = escape(link.href)
+    , title = link.title ? escape(link.title) : null;
+
   if (cap[0].charAt(0) !== '!') {
-    return '<a href="'
-      + escape(link.href)
-      + '"'
-      + (link.title
-      ? ' title="'
-      + escape(link.title)
-      + '"'
-      : '')
-      + '>'
-      + this.output(cap[1])
-      + '</a>';
+    return this.renderer.link(href, title, this.output(cap[1]));
   } else {
-    return '<img src="'
-      + escape(link.href)
-      + '" alt="'
-      + escape(cap[1])
-      + '"'
-      + (link.title
-      ? ' title="'
-      + escape(link.title)
-      + '"'
-      : '')
-      + '>';
+    return this.renderer.image(href, title, escape(cap[1]));
   }
 };
 
@@ -829,6 +800,40 @@ Renderer.prototype.tablecell = function(content, flags) {
   return tag + content + '</' + type + '>\n';
 };
 
+// span level renderer
+Renderer.prototype.strong = function(text) {
+  return '<strong>' + text + '</strong>';
+};
+Renderer.prototype.emphasis = function(text) {
+  return '<em>' + text + '</em>';
+};
+Renderer.prototype.codespan = function(text) {
+  return '<code>' + text + '</code>';
+};
+Renderer.prototype.linebreak = function() {
+  return '<br>';
+};
+Renderer.prototype.strikethrough = function(text) {
+  return '<del>' + text + '</del>';
+};
+Renderer.prototype.link = function(href, title, text) {
+  var out = '<a href="' + href + '"';
+  if (title) {
+    out += ' title="' + title + '"';
+  }
+  out += '>' + text + '</a>';
+  return out;
+};
+Renderer.prototype.image = function(href, title, text) {
+  var out = '<img src="' + href + '" alt="' + text + '"';
+  if (title) {
+    out += ' title="' + title + '"';
+  }
+  out += '>';
+  return out;
+};
+
+
 /**
  * Parsing & Compiling
  */
@@ -858,7 +863,7 @@ Parser.parse = function(src, options, renderer) {
  */
 
 Parser.prototype.parse = function(src) {
-  this.inline = new InlineLexer(src.links, this.options);
+  this.inline = new InlineLexer(src.links, this.options, this.renderer);
   this.tokens = src.reverse();
 
   var out = '';
