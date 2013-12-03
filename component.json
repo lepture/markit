@@ -2,7 +2,7 @@
   "name": "markit",
   "repo": "lepture/markit",
   "description": "A markdown parser and compiler. Forked from marked.",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "keywords": [],
   "dependencies": {},
   "development": {},
