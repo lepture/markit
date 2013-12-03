@@ -746,7 +746,6 @@ InlineLexer.prototype.mangle = function(text) {
  */
 
 function Renderer(options) {
-  this.options = options || {};
 }
 Renderer.prototype.blockcode = function(code, lang) {
   if (!lang) {
