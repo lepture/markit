@@ -2,6 +2,10 @@
 
 A markdown parser and compiler. Forked from [marked](https://github.com/chjj/marked).
 
+It has been 9 months since the [pr#129 on marked](https://github.com/chjj/marked/pull/129), and I've lost my patience. That's why I created this project.
+
+Anyone who doesn't need renderer feature, use marked instead, please.
+
 ## Installation
 
 Install with npm:
@@ -89,13 +93,25 @@ Renderer.prototype.tablecell = function(content, flags) {
 
 ### markit(text, [options], [callback])
 
+Alias: `markit.parse`.
+
+Parse and compile text into html.
+
 ### markit.Parser(options, [renderer])
+
+Actually, you don't need this API.
 
 ### markit.Lexer(options)
 
+Actually, you don't need this API.
+
 ### markit.InlineLexer(options)
 
+Actually, you don't need this API.
+
 ### markit.Renderer()
+
+See Renderer section for more detail.
 
 ## Bonus
 
