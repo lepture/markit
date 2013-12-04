@@ -1,3 +1,5 @@
 components
 build
 markit.js
+test/cases
+node_modules
