@@ -119,6 +119,23 @@ You can create a standalone script with:
 
     $ make standalone
 
+## Benchmark
+
+Benchmark of markit on my Macbook Air:
+
+```
+markit completed in 3353ms.
+markit (gfm) completed in 3427ms.
+markit (pedantic) completed in 2958ms.
+marked completed in 3180ms.
+marked (gfm) completed in 3358ms.
+marked (pedantic) completed in 2919ms.
+robotskirt completed in 722ms.
+showdown (reuse converter) completed in 9894ms.
+showdown (new converter) completed in 14640ms.
+markdown.js completed in 12490ms.
+```
+
 ## License
 
 MIT
